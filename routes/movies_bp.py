@@ -67,6 +67,8 @@ movies = [
 
 @movies_bp.get("/")
 def movie_data():
+    
+    data = db.session.execute(Movie)
     return movies
 
 @movies_bp.get("/<id>")
