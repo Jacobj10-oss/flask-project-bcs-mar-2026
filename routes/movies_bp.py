@@ -1,10 +1,13 @@
 from flask import Blueprint
 from models.movie import Movie
 from extensions import db
+from sqlalchemy import select
 
 movies_bp = Blueprint("movies_bp",__name__)
 
+# SCREAMING_SNAKE_CASE
 HTTP_NOT_FOUND = 404
+HTTP_SERVER_ERROR = 500
 
 movies = [
   {
@@ -66,10 +69,13 @@ movies = [
 ]
 
 @movies_bp.get("/")
+
 def movie_data():
-    
-    data = db.session.execute(Movie)
-    return movies
+    data_movie = db.session.execute(select(Movie)).scalars().all()
+    movies_data = []
+    for i in data_movie:
+        movies_data.append(i.to_dict())
+    return movies_data 
 
 @movies_bp.get("/<id>")
 def movie(id):
@@ -85,9 +91,20 @@ def movie(id):
 
 @movies_bp.delete("/<id>")
 def movie_delete(id):
-    for movie_id in movies:
-        if (movie_id["id"] == id):
-            movies.remove(movie_id)
-            return movie_id
-    return {"message":"Movie not found"},HTTP_NOT_FOUND
+    # for movie_id in movies:
+    #     if (movie_id["id"] == id):
+    #         movies.remove(movie_id)
+    #         return movie_id
+    movie = db.session.get(Movie,id)
 
+    if not movie:
+        return {"message":"Movie not found"},HTTP_NOT_FOUND
+    
+    try:
+        db.session.delete(movie) # temp
+        db.session.commit() #permanent
+    except Exception as err:
+        db.session.rollback() #undo
+        return {"message": str(err)}, HTTP_SERVER_ERROR
+
+    return {"data": movie.to_dict(),"message": "movie delete successfully"}     
