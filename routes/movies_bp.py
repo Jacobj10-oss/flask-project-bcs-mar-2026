@@ -1,4 +1,4 @@
-from flask import Blueprint
+from flask import Blueprint, request
 from models.movie import Movie
 from extensions import db
 from sqlalchemy import select
@@ -108,3 +108,26 @@ def movie_delete(id):
         return {"message": str(err)}, HTTP_SERVER_ERROR
 
     return {"data": movie.to_dict(),"message": "movie delete successfully"}     
+
+@movies_bp.post("/")
+def Create_movie():
+    data = request.get_json()
+
+    new_movie = Movie(
+        
+        name = data.get('name'),
+        poster = data.get('poster'),
+        summary=data.get("summary"),
+        rating=data.get("rating"),
+        trailer=data.get("trailer") 
+    )
+
+    try:
+        db.session.add(new_movie)
+        db.session.commit()
+    except Exception as err:
+        db.session.rollback()
+
+        return {"message":str(err)},HTTP_SERVER_ERROR
+    return{"data" : new_movie.to_dict(),"message":"movie added successfully"}
+    
