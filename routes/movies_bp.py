@@ -79,10 +79,6 @@ def movie_data():
 
 @movies_bp.get("/<id>")
 def movie(id):
-    # for movie_id in movies:
-    #     if (movie_id["id"] == id):  
-    #         return movie_id
-    # return {"message":"Movie not found"},HTTP_NOT_FOUND
     data = db.session.get(Movie,id)
 
     if not data:
@@ -91,10 +87,6 @@ def movie(id):
 
 @movies_bp.delete("/<id>")
 def movie_delete(id):
-    # for movie_id in movies:
-    #     if (movie_id["id"] == id):
-    #         movies.remove(movie_id)
-    #         return movie_id
     movie = db.session.get(Movie,id)
 
     if not movie:
@@ -130,4 +122,27 @@ def Create_movie():
 
         return {"message":str(err)},HTTP_SERVER_ERROR
     return{"data" : new_movie.to_dict(),"message":"movie added successfully"}
+
+@movies_bp.put("/<id>")
+def Update_movie(id):
+    update_movie = request.get_json()
+
+    db_movie = db.session.get(Movie,id)
+
+    if not db_movie:
+        return {"message":"Movie not found"},HTTP_NOT_FOUND
+    
+    db_movie.name = update_movie.get('name')
+    db_movie.poster = update_movie.get('poster')
+    db_movie.summary = update_movie.get('summary')
+    db_movie.rating= update_movie.get('rating')
+    db_movie.trailer = update_movie.get('trailer')
+
+    try:
+        db.session.commit()
+    except Exception as err:
+        db.session.rollback()
+        return {"message":str(err)},HTTP_NOT_FOUND
+    
+    return {"data" : db_movie.to_dict(),"message":"movie updated successfully"}
     
