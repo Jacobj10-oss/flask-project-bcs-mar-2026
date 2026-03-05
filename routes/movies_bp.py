@@ -145,4 +145,4 @@ def Update_movie(id):
         return {"message":str(err)},HTTP_NOT_FOUND
     
     return {"data" : db_movie.to_dict(),"message":"movie updated successfully"}
-    
+

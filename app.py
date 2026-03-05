@@ -1,4 +1,5 @@
 from flask import Flask
+from routes.users_bp import users_bp
 from routes.movies_bp import movies_bp
 from config import Config
 from extensions import db
@@ -22,3 +23,4 @@ def hello():
     return "<h1>Hello, World! 🎉 🔥</h1>"
 
 app.register_blueprint(movies_bp,url_prefix="/api/movies")
+app.register_blueprint(users_bp,url_prefix="/api/auth")
