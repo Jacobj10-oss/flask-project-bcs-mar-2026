@@ -4,12 +4,13 @@ from routes.movies_bp import movies_bp
 from config import Config
 from extensions import db
 from sqlalchemy.sql import text
+from flask_cors import CORS
 
 app = Flask(__name__)
 app.config.from_object(Config)  # URL
 
 db.init_app(app)
-
+CORS(app)
 
 with app.app_context():
     try:
